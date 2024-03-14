@@ -9,7 +9,9 @@
   "author": "duc nghia",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.18.3",
+    "mongoose": "^8.2.1",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0"
   }

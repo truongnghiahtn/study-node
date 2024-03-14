@@ -1,18 +1,13 @@
 const express = require('express');
 const app = express();
-const route= require('./routes')
-const morgan = require("morgan");
-
-
+const route = require('./routes');
+const morgan = require('morgan');
 
 //middlewares
 app.use(express.json());
-app.use(morgan("combined"));
-
-
+app.use(morgan('combined'));
 
 //router
 route(app);
 
-
-module.exports=app;
+module.exports = app;

@@ -1,8 +1,8 @@
 const fs = require('fs');
 
 const tours = JSON.parse(
-    fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-  );
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+);
 class TourController {
   getAllTours(req, res) {
     res.status(200).json({
@@ -88,4 +88,4 @@ class TourController {
   }
 }
 
-module.exports= new TourController;
+module.exports = new TourController();

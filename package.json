@@ -1,0 +1,16 @@
+{
+  "name": "bai1",
+  "version": "1.0.0",
+  "description": "learn Nodejs express",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "duc nghia",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.3",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.0"
+  }
+}

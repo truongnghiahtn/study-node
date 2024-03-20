@@ -15,6 +15,11 @@ const handdleValidationError = (err) => {
   const message = err.message;
   return new AppError(message, 400);
 };
+const handleJWTError = () =>
+  new AppError('Invalid token. Please log in again!', 401);
+
+const handleJWTExpiredError = () =>
+  new AppError('Your token has expired! Please log in again.', 401);
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -44,7 +49,7 @@ module.exports = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
-  } else if (process.env.NODE_ENV === 'product') {
+  } else if (process.env.NODE_ENV === 'production') {
     // Có 3 lỗi chính từ mongodb
     // 1.=> không đúng kiểu dữ liệu thường sảy ra _id hay name
     // 2.=> duplicate(unique) sảy ra thường ở email hay name
@@ -58,6 +63,10 @@ module.exports = (err, req, res, next) => {
 
     //3
     if (err.name === 'ValidationError') error = handdleValidationError(err);
+
+    if (err.name === 'JsonWebTokenError') error = handleJWTError();
+    if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
+
 
     sendErrorProduct(error, res);
   }

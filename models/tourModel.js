@@ -5,7 +5,7 @@ const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: [true, 'Đây là trường name dữ liệu bạn cần nhập'],
+      required: [true, 'Đây là trường name dữ liệu bạn cần nhập'],
       unique: true,
       trim: true,
       maxlength: [40, 'A tour name must have less or equal then 40 characters'],
@@ -13,15 +13,15 @@ const tourSchema = new mongoose.Schema(
     },
     duration: {
       type: Number,
-      require: [true, 'Đây là trường durations dữ liệu bắt buộc'],
+      required: [true, 'Đây là trường durations dữ liệu bắt buộc'],
     },
     maxGroupSize: {
       type: Number,
-      require: [true, 'Đây là trường maxGroupSize dữ liệu bắt buộc'],
+      required: [true, 'Đây là trường maxGroupSize dữ liệu bắt buộc'],
     },
     difficulty: {
       type: String,
-      require: [true, 'Đây là trường difficulty dữ liệu bắt buộc'],
+      required: [true, 'Đây là trường difficulty dữ liệu bắt buộc'],
       enum: {
         values: ['easy', 'medium', 'difficult'],
         message: 'Difficulty is either: easy, medium, difficult',
@@ -40,7 +40,7 @@ const tourSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      require: [true, 'Đây là trường price dữ liệu bạn cần nhập'],
+      required: [true, 'Đây là trường price dữ liệu bạn cần nhập'],
     },
     priceDiscount: {
       type: Number,
@@ -55,7 +55,7 @@ const tourSchema = new mongoose.Schema(
     summary: {
       type: String,
       trim: true,
-      require: [true, 'Đây là trường summary dữ liệu bạn cần nhập'],
+      required: [true, 'Đây là trường summary dữ liệu bạn cần nhập'],
     },
     description: {
       type: String,
@@ -63,7 +63,7 @@ const tourSchema = new mongoose.Schema(
     },
     imageCover: {
       type: String,
-      require: [true, 'Đây là trường imageCover dữ liệu bạn cần nhập'],
+      required: [true, 'Đây là trường imageCover dữ liệu bạn cần nhập'],
     },
     images: [String],
     startDates: [Date],

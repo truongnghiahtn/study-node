@@ -34,7 +34,6 @@ class TourController {
   });
 
   getTour = catchAsync(async (req, res) => {
-    console.log(req.params.id);
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
       status: 'success',
@@ -104,7 +103,6 @@ class TourController {
 
   getMonthlyPlan = catchAsync(async (req, res) => {
     const { year } = req.params;
-    console.log(year);
     const plan = await Tour.aggregate([
       { $unwind: '$startDates' },
       {

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -27,7 +28,6 @@ const tourSchema = new mongoose.Schema(
         message: 'Difficulty is either: easy, medium, difficult',
       },
     },
-    slug: String,
     ratingsAverage: {
       type: Number,
       default: 4.5,
@@ -71,11 +71,39 @@ const tourSchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      description: String,
+      address: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        description: String,
+        day: Number,
+      },
+    ],
     updatedAt: {
       type: Date,
       default: Date.now(),
     },
     seceretTour: Boolean,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -87,7 +115,35 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// virtual populate
+
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
+});
+
+
+// tourSchema.index({price:1});
+tourSchema.index({price:1, ratingsAverage:-1});
+
 // middlewares query
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromis = this.guides.map(async (id) => {
+//     return await User.findById(id);
+//   });
+//   this.guides= await Promise.all(guidesPromis);
+//   next();
+// });
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
+  next();
+});
+
 tourSchema.pre(/^find/, function (next) {
   this.find({ seceretTour: { $ne: true } });
   next();
@@ -99,9 +155,9 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
-tourSchema.pre('save', function (next) {
-  this.slug = slugify(this.name, { lower: true });
-  next();
-});
+// tourSchema.pre('save', function (next) {
+//   this.slug = slugify(this.name, { lower: true });
+//   next();
+// });
 
 module.exports = mongoose.model('Tour', tourSchema);

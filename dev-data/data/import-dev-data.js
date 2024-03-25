@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const Tour = require('../../models/tourModel');
+const User = require('../../models/userModel');
+const Review = require('../../models/reviewModel');
 
 const connect = async () => {
   try {
@@ -13,13 +15,17 @@ const connect = async () => {
 };
 connect();
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 );
 
 const importDataTour = async () => {
   try {
     await Tour.create(tours);
+    await User.create(users, { validateBeforeSave: false });
+    await Review.create(reviews);
     console.log('import success');
     process.exit();
   } catch (error) {
@@ -30,6 +36,8 @@ const importDataTour = async () => {
 const deleteDataTour = async () => {
   try {
     await Tour.deleteMany();
+    await User.deleteMany();
+    await Review.deleteMany();
     console.log('delete success');
     process.exit();
   } catch (error) {
@@ -37,10 +45,9 @@ const deleteDataTour = async () => {
   }
 };
 
-
-if(process.argv[2]==="--import"){
-  importDataTour()
-}else if(process.argv[2]==="--delete"){
+if (process.argv[2] === '--import') {
+  importDataTour();
+} else if (process.argv[2] === '--delete') {
   deleteDataTour();
 }
 

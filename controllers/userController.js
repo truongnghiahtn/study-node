@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const appError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
+const handleFactory = require('./handleFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -11,32 +12,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 class UserController {
-  getAllUsers = catchAsync(async (req, res, next) => {
-    const features = new APIFeatures(User, req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const allUsers = await features.query;
-    res.status(200).json({
-      status: 'success',
-      data: {
-        users: allUsers,
-      },
-    });
-  });
-  createUser(req, res, next) {
-    res.status(200).json({
-      status: 'success',
-    });
-  }
-
-  getUser(req, res, next) {
-    res.status(200).json({
-      status: 'success',
-    });
-  }
-
   updateMe = catchAsync(async (req, res, next) => {
     // 1) Create error if user POSTs password data
     if (req.body.password || req.body.passwordConfirm) {
@@ -69,8 +44,12 @@ class UserController {
     });
   });
 
-  deleteMe = catchAsync(async (req, res, next) => {
+  getMe = catchAsync(async (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+  });
 
+  deleteMe = catchAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(req.user.id, { active: false });
     res.status(204).json({
       status: 'success',
@@ -78,16 +57,10 @@ class UserController {
     });
   });
 
-  updateUser(req, res, next) {
-    res.status(200).json({
-      status: 'success',
-    });
-  }
-
-  deleteUser(req, res, next) {
-    res.status(200).json({
-      status: 'success',
-    });
-  }
+  getUser = handleFactory.getOne(User);
+  getAllUsers = handleFactory.getAll(User);
+  // Do NOT update passwords with this!
+  updateUser = handleFactory.updateOne(User);
+  deleteUser = handleFactory.deleteOne(User);
 }
 module.exports = new UserController();

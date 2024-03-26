@@ -12,6 +12,7 @@ const tourSchema = new mongoose.Schema(
       maxlength: [40, 'A tour name must have less or equal then 40 characters'],
       minlength: [10, 'A tour name must have more or equal then 10 characters'],
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'Đây là trường durations dữ liệu bắt buộc'],
@@ -124,8 +125,9 @@ tourSchema.virtual('reviews', {
 });
 
 
-// tourSchema.index({price:1});
+tourSchema.index({price:1});
 tourSchema.index({price:1, ratingsAverage:-1});
+tourSchema.index({ slug: 1 });
 
 // middlewares query
 // tourSchema.pre('save', async function (next) {
@@ -155,9 +157,10 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
-// tourSchema.pre('save', function (next) {
-//   this.slug = slugify(this.name, { lower: true });
-//   next();
-// });
+
+tourSchema.pre('save', function(next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
 module.exports = mongoose.model('Tour', tourSchema);

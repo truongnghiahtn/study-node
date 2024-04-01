@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const app = express();
 const route = require('./routes');
@@ -9,11 +10,17 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 
 
 dotenv.config({ path: './config.env' });
 //middlewares
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// read file in public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // protec header
 
@@ -41,9 +48,11 @@ const limiter= rateLimit({
 })
 
 app.use('/api',limiter);
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser());
 
 // read file in public
-app.use(express.static(`${__dirname}/public`));
+// app.use(express.static(`${__dirname}/public`));
 
 // parse body, read data from body
 app.use(express.json());
@@ -55,7 +64,7 @@ app.use((req, res, next) => {
 // connect database
 db();
 
-//router
+
 route(app);
 
 module.exports = app;

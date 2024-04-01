@@ -20,7 +20,10 @@ class TourController {
   }
 
   getAllTours = handleFactory.getAll(Tour);
-  getTour = handleFactory.getOne(Tour, { path: 'reviews' });
+  getTour = handleFactory.getOne(Tour, {
+    path: 'reviews',
+    fields: 'review rating user'
+  });
   createTour = handleFactory.createOne(Tour);
   updateTour = handleFactory.updateOne(Tour);
   deleteTour = handleFactory.deleteOne(Tour);

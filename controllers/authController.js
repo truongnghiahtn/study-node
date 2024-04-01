@@ -3,7 +3,7 @@ const appError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const sendEmail = require('../utils/sendMail');
+const Email = require('../utils/sendMail');
 const crypto = require('crypto');
 
 const signJWT = (id) => {
@@ -17,7 +17,7 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true
+    httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
@@ -30,8 +30,8 @@ const createSendToken = (user, statusCode, res) => {
     status: 'success',
     token,
     data: {
-      user
-    }
+      user,
+    },
   });
 };
 class Auth {
@@ -43,7 +43,9 @@ class Auth {
       passwordConfirm: req.body.passwordConfirm,
       role: req.body.role,
     });
-    createSendToken(newUser,201,res);
+    const url = `${req.protocol}://${req.get('host')}/me`;
+    await new Email(newUser, url).sendWelcome();
+    createSendToken(newUser, 201, res);
   });
 
   login = catchAsync(async (req, res, next) => {
@@ -61,13 +63,13 @@ class Auth {
     if (!checkPassword) {
       return next(new appError(`Password is not correct`, 401));
     }
-    createSendToken(user,200,res);
+    createSendToken(user, 200, res);
   });
 
   logout = (req, res) => {
     res.cookie('jwt', 'loggedout', {
       expires: new Date(Date.now() + 10 * 1000),
-      httpOnly: true
+      httpOnly: true,
     });
     res.status(200).json({ status: 'success' });
   };
@@ -79,7 +81,7 @@ class Auth {
       req.headers.authorization.startsWith('Bearer')
     ) {
       token = req.headers.authorization.split(' ')[1];
-    }else if (req.cookies.jwt) {
+    } else if (req.cookies.jwt) {
       token = req.cookies.jwt;
     }
     if (!token) {
@@ -122,19 +124,19 @@ class Auth {
         //   req.cookies.jwt,
         //   process.env.JWT_SECRET
         // );
-        const decoded = jwt.verify( req.cookies.jwt, process.env.KEY_JWT);
-  
+        const decoded = jwt.verify(req.cookies.jwt, process.env.KEY_JWT);
+
         // 2) Check if user still exists
         const currentUser = await User.findById(decoded.id);
         if (!currentUser) {
           return next();
         }
-  
+
         // 3) Check if user changed password after the token was issued
         if (currentUser.changedPasswordAfter(decoded.iat)) {
           return next();
         }
-  
+
         // THERE IS A LOGGED IN USER
         res.locals.user = currentUser;
         return next();
@@ -169,10 +171,11 @@ class Auth {
     await user.save({ validateBeforeSave: false });
 
     // // 3) Send it to user's email
-    const resetURL = `http://localhost:8100/api/v1/users/resetPassword/${resetToken}`;
-
-    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
     try {
+      const resetURL = `${req.protocol}://${req.get(
+        'host'
+      )}/api/v1/users/resetPassword/${resetToken}`;
+      await new Email(user, resetURL).sendPasswordReset();
       await sendEmail({
         email: user.email,
         subject: 'Your password reset token (valid for 10 min)',
@@ -218,7 +221,7 @@ class Auth {
     await user.save();
 
     //4) log the user, send jwt
-    createSendToken(user,200,res);
+    createSendToken(user, 200, res);
   });
 
   updatePassword = catchAsync(async (req, res, next) => {
@@ -230,7 +233,7 @@ class Auth {
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
     await user.save();
-    createSendToken(user,200,res);
+    createSendToken(user, 200, res);
   });
 }
 

@@ -48,6 +48,7 @@ const limiter= rateLimit({
 })
 
 app.use('/api',limiter);
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // read file in public

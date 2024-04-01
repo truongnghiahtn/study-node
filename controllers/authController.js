@@ -111,6 +111,7 @@ class Auth {
     }
     // GRANT ACCESS TO PROTECTED ROUTE
     req.user = currentUser;
+    res.locals.user = currentUser;
     next();
   });
   isLoggedIn = async (req, res, next) => {
